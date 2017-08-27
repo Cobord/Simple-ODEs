@@ -29,7 +29,7 @@ class DoublePendulum:
     def __init__(self,
                  init_state = [120, 0, -20, 0],
                  L1=1.0,  # length of pendulum 1 in m
-                 L2=1.0,  # length of pendulum 2 in m
+                 L2=.5,  # length of pendulum 2 in m
                  M1=1.0,  # mass of pendulum 1 in kg
                  M2=1.0,  # mass of pendulum 2 in kg
                  G=9.8,  # acceleration due to gravity, in m/s^2
@@ -103,7 +103,7 @@ class DoublePendulum:
 
 #------------------------------------------------------------
 # set up initial state and global variables
-pendulum = DoublePendulum([180., 0.0, -20., 0.0])
+pendulum = DoublePendulum([240., 0.0, -20., 0.0])
 dt = 1./30 # 30 fps
 
 #------------------------------------------------------------
@@ -142,7 +142,6 @@ t0 = time()
 animate(0)
 plt.show()
 sleep(1)
-
 t1 = time()
 interval = 1000 * dt - (t1 - t0)
 
