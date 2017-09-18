@@ -1,0 +1,91 @@
+from numpy import sin, cos
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import integrate
+from scipy import misc
+
+from algopy import UTPM
+
+time=np.linspace(0,15,5*1024)
+g = 9.8
+l = 1.0
+
+D = 4; P = 1
+x = UTPM(np.zeros((D,P)))
+x.data[0,0] = 0.0
+x.data[1,0] = 1
+y = sin(x)
+coeffs = y.data[:,0]
+padeNum, padeDen = misc.pade(coeffs,2)
+print(padeNum)
+print(padeDen)
+
+def derivPos(x, t):
+    """Return the derivative of the vector x, which represents
+    the tuple (x1, x2). """
+
+    theta, omega  = x
+    return np.array([omega,-g/l*np.sin(theta)])
+
+def padeSin(theta):
+    return padeNum(theta)/padeDen(theta)
+
+def derivPos2(x, t):
+    """Return the derivative of the vector x, which represents
+    the tuple (x1, x2). """
+
+    theta, omega  = x
+    return np.array([omega,-g/l*padeSin(theta)])
+
+def coupled(time, init, ax,method):
+    """Visualize the system of coupled equations, by passing a timerange and
+    initial conditions for the coupled equations.
+
+    The initical condition is the value that (N1, N2) will assume at the first
+    timestep. """
+
+    if method==0:
+        N = integrate.odeint(derivPos, init, time)
+    else:
+        N = integrate.odeint(derivPos2, init, time)
+    ax[0].plot(N[:,0], N[:,1], label='[{:.1f}, {:.1f}]'.format(*init))  # plots N2 vs N1, with time as an implicit parameter
+    l1, = ax[1].plot(time, N[:,0], label='[{:.1f}, {:.1f}]'.format(*init))
+    ax[1].plot(time, N[:,1], color=l1.get_color())
+    
+method=0
+fh, ax = plt.subplots(1,2)
+coupled(time, [.3, 1/.7], ax,method)
+coupled(time, [.4, 1/.7], ax,method)
+coupled(time, [1/.7, .3], ax,method)
+coupled(time, [.1, .1], ax,method)
+coupled(time, [1.6, 5.0], ax,method)
+ax[0].legend()
+ax[1].legend()
+ax[0].set_xlabel('theta')
+ax[0].set_ylabel('omega')
+ax[1].set_xlabel('time')
+ax[1].set_ylabel(r'$x_i$')
+ax[0].set_title('implicit')
+ax[1].set_title('explicit (i.e. vs independant variable time)')
+plt.title('method 0')
+plt.show()
+plt.close()
+
+
+method=1
+fh, ax = plt.subplots(1,2)
+coupled(time, [.3, 1/.7], ax,method)
+coupled(time, [.4, 1/.7], ax,method)
+coupled(time, [1/.7, .3], ax,method)
+coupled(time, [.1, .1], ax,method)
+coupled(time, [0, 5], ax,method)
+ax[0].legend()
+ax[1].legend()
+ax[0].set_xlabel('theta')
+ax[0].set_ylabel('omega')
+ax[1].set_xlabel('time')
+ax[1].set_ylabel(r'$x_i$')
+ax[0].set_title('implicit, pade')
+ax[1].set_title('explicit, pade (i.e. vs independant variable time)')
+plt.show()
+plt.close()
